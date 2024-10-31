@@ -19,7 +19,12 @@ class Ennemy:
         self.strength = strength
 
     def calculateDamage(self):  # Calculate attack damage
-        return self.weapon.damage + randint(1, 5) * self.strength
+        if self.weapon.durability > 0:
+            damage = self.weapon.damage + randint(1, 5) * self.strength
+            self.weapon.durability = max(self.weapon.durability - damage, 0)
+        else:
+            damage = randint(1, 5) * self.strength
+        return damage
 
     def achieveAttack(self):
         if randint(1, 20) <= self.atk:
@@ -48,7 +53,7 @@ class Ennemy:
     def utilisePotion(self, potion):
         if potion == "Health":
             self.potions[potion] -= 1
-            self.health += 30 + self.level*5
+            self.health = min(self.health + 30 + self.level * 5, self.maxHealth)
 
     def printCombatInfos(self):
         print(f"Ennemy : HP = {self.health}/{self.maxHealth} | Mana = {self.mana}/{self.maxMana}")
@@ -82,13 +87,18 @@ class Player:
         self.initializePlayer()
 
     def initializePlayer(self):
-        self.pseudo = input("What is your pseudo ?")
+        self.pseudo = input("What is your pseudo ? : ")
         self.weapon = stick
         self.armor = tunic
         self.gold = 50
 
     def calculateDamage(self):  # Calculate attack damage
-        return self.weapon.damage + randint(1, 5) * self.strength
+        if self.weapon.durability > 0:
+            damage = self.weapon.damage + randint(1, 5) * self.strength
+            self.weapon.durability = max(self.weapon.durability - damage, 0)
+        else:
+            damage = randint(1, 5) * self.strength
+        return damage
 
     def achieveAttack(self):
         if randint(1, 20) <= self.atk:
@@ -109,7 +119,7 @@ class Player:
         self.maxMana += randint(10, 30)
         self.health = self.maxHealth
         self.mana = self.maxMana
-        print(f"You leveled up ! Your new stats are : Health = {self.maxHealth} | Mana = {self.maxMana} | Attack = {self.atk} | Dodge = {self.flee} | Strength = {self.strength}")
+        print(f"You leveled up ! Your new stats are : Health = {self.maxHealth} | Mana = {self.maxMana} | Attack = {self.atk} | Flee = {self.flee} | Strength = {self.strength}")
 
     def gainXp(self, ennemy: Ennemy):  # Calculate the gain of xp
         xpGained = ennemy.level*20 + randint(-5, 5) * ennemy.level + randint(0, 10)
@@ -136,7 +146,7 @@ class Player:
     def utilisePotion(self, potion):
         if potion == "Health":
             self.potions[potion] -= 1
-            self.health += min(30 + self.level*5, self.maxHealth)
+            self.health = min(self.health + 30 + self.level*5, self.maxHealth)
 
     def printCombatInfos(self):
         print(f"{self.pseudo} : HP = {self.health}/{self.maxHealth} | Mana = {self.mana}/{self.maxMana}")
@@ -146,4 +156,4 @@ class Player:
         print("You own : " + string + "\n")
 
     def __str__(self):
-        return f"{self.pseudo} : Health = {self.health}/{self.maxHealth} | Mana = {self.mana}/{self.maxMana} | Xp = {self.xp} |Attack = {self.atk} | Flee = {self.flee} | Strength = {self.strength}.\nYou own a {self.armor.name}, a {self.weapon.name} and {self.potions['Health']} health potions."
+        return f"{self.pseudo} : Health = {self.health}/{self.maxHealth} | Mana = {self.mana}/{self.maxMana} | Xp = {self.xp} |Attack = {self.atk} | Flee = {self.flee} | Strength = {self.strength}.\nYou own a {self.armor.name} ({self.armor.durability}/{self.armor.maxDurability} durability), a {self.weapon.name} ({self.weapon.durability}/{self.weapon.maxDurability} durability) and {self.potions['Health']} health potions."

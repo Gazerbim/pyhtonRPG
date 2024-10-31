@@ -2,43 +2,46 @@ from random import randint
 from character import *
 from equipement import *
 from utilities import *
+from forms import *
 
 
 def buyWeapon(player: Player):
     while True:
+        widget = ChooseWidget()
         clearTerminal()
-        print("\n=======================WEAPON SHOP=====================\n")
-        print(player)
-        print(f"Gold : {player.gold}€")
-        string = "What you can buy : \n"
+        prefix = "\n=======================WEAPON SHOP=====================\n"
+        prefix += player.__str__()
+        prefix += f"\nGold : {player.gold}€\n"
+        prefix += "What you can buy : \n"
         for weapon in range(len(weapons)):
-            string += f"\t{weapon} = {weapons[weapon].name} (+{weapons[weapon].damage} dmg) | {weapons[weapon].value}€ \n"
-        string += f"\t{weapon + 1} = Quit the menu :"
-        choice = int(input(string))
+            widget.add_choice(f"{weapons[weapon].name} (+{weapons[weapon].damage} dmg) | {weapons[weapon].value}€")
+        widget.add_choice(f"Quit the menu :")
+        widget.run(prefix)
+        choice = widget.cursor
         if choice == len(weapons):  # Quit the menu
             break
-        while choice >= len(weapons) or choice < 0:
-            print("Wrong entry !")
-            choice = int(input(string))
         if player.gold < weapons[choice].value:
             print("You don't have enough money !")
             continue
         player.weapon = weapons[choice]
         player.gold -= weapons[choice].value
+        player.weapon.durability = player.weapon.maxDurability
         print(f"{weapons[choice].name} has been bought")
 
 
 def buyArmor(player: Player):
     while True:
+        widget = ChooseWidget()
         clearTerminal()
-        print("\n=======================ARMOR SHOP=====================\n")
-        print(player)
-        print(f"Gold : {player.gold}€")
-        string = "What you can buy :\n"
+        prefix = "\n=======================ARMOR SHOP=====================\n"
+        prefix += player.__str__()
+        prefix += f"\nGold : {player.gold}€\n"
+        prefix += "What you can buy : \n"
         for armor in range(len(armors)):
-            string += f"\t{armor} = {armors[armor].name} (+{armors[armor].protection} protection) | {armors[armor].value}€ \n"
-        string += f"\t{armor + 1} = Quit the menu :"
-        choice = int(input(string))
+            widget.add_choice(f"{armors[armor].name} (+{armors[armor].protection} protection) | {armors[armor].value}€")
+        widget.add_choice(f"Quit the menu :")
+        widget.run(prefix)
+        choice = widget.cursor
         if choice == len(armors):  # Quit the menu
             break
         while choice >= len(armors) or choice < 0:
@@ -49,20 +52,23 @@ def buyArmor(player: Player):
             continue
         player.armor = armors[choice]
         player.gold -= armors[choice].value
+        player.armor.durability = player.armor.maxDurability
         print(f"{armors[choice].name} has been bought")
 
 
 def buyPotion(player: Player):
     while True:
+        widget = ChooseWidget()
         clearTerminal()
-        print("\n=======================POTION SHOP=====================\n")
-        print(player)
-        print(f"Gold : {player.gold}€")
-        string = "What you can buy \n"
+        prefix = "\n=======================POTION SHOP=====================\n"
+        prefix += player.__str__()
+        prefix += f"\nGold : {player.gold}€\n"
+        prefix += "What you can buy : \n"
         for potion in range(len(tabPotions)):
-            string += f"\t{potion} = {tabPotions[potion][0]} potion | {tabPotions[potion][1]}€\n"
-        string += f"\t{potion + 1} = Quit the menu :"
-        choice = int(input(string))
+            widget.add_choice(f"{tabPotions[potion][0]} potion | {tabPotions[potion][1]}€")
+        widget.add_choice(f"Quit the menu :")
+        widget.run(prefix)
+        choice = widget.cursor
         if choice == len(tabPotions):  # Quit the menu
             break
         while choice >= len(tabPotions) or choice < 0:
@@ -79,18 +85,21 @@ def buyPotion(player: Player):
 def handleShop(player: Player):
     while True:
         clearTerminal()
-        print("\n=======================SHOP=====================\n")
-        print(player)
-        print(f"Gold : {player.gold}€")
-        choice = int(input("Choose what you want to buy :\n\t1 = weapon \n\t2 = armor \n\t3 = potion \n\t4 = quit the shop : "))
-        while not (choice == 1 or choice == 2 or choice == 3 or choice == 4):
-            print("Wrong entry")
-            choice = int(input("Choose what you want to buy :\n\t1 = weapon \n\t2 = armor \n\t3 = potion \n\t4 = quit the shop : "))
-        if choice == 1:
+        prefix = "\n=======================SHOP=====================\n"
+        prefix += player.__str__()
+        prefix += f"\nGold : {player.gold}€\n"
+        widget = ChooseWidget()
+        widget.add_choice("Buy Weapons")
+        widget.add_choice("Buy Armors")
+        widget.add_choice("Buy Potions")
+        widget.add_choice("Quit the shop")
+        widget.run(prefix)
+        choice = widget.cursor
+        if choice == 0:
             buyWeapon(player)
-        elif choice == 2:
+        elif choice == 1:
             buyArmor(player)
-        elif choice == 3:
+        elif choice == 2:
             buyPotion(player)
-        elif choice == 4:
+        elif choice == 3:
             break

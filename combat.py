@@ -2,6 +2,8 @@ from random import randint
 from character import *
 from equipement import *
 from utilities import *
+from forms import *
+
 
 isFleeing = False
 
@@ -12,12 +14,11 @@ def calculateEnnemyHealthOrMana(level):
 
 
 def chooseWeapon(player: Player):
-
-    dist = abs(weapons[0].damage - player.health/5)
+    dist = abs(weapons[0].damage - player.maxHealth/4)
     weaponChoosed = (0, dist)
     for w in range(len(armors)):
-        # print(f"{weapons[w].damage} - {player.health/5}")
-        dist = abs(weapons[w].damage - player.health/5)
+        # print(f"{weapons[w].damage} - {player.maxHealth/5}")
+        dist = abs(weapons[w].damage - player.maxHealth/4)
         if dist < weaponChoosed[1]:
             weaponChoosed = (w, dist)
     return max(weaponChoosed[0]-1, 0)
@@ -31,7 +32,7 @@ def chooseArmor(eHealth):
         dist = abs(armors[w].protection - eHealth / 5)
         if dist < armorChoosed[1]:
             armorChoosed = (w, dist)
-    return max(armorChoosed[0], 0)
+    return max(armorChoosed[0]-1, 0)
     # return 0  # standard option
 
 
@@ -48,9 +49,11 @@ def generateEnnemy(player: Player):
     eMana = calculateEnnemyHealthOrMana(eLevel)
     eHPotion = chooseNumberPotions(eLevel)
     eMPotion = chooseNumberPotions(eLevel)
-    eArmor = armors[chooseArmor(eHealth)]
-    eWeapon = weapons[chooseWeapon(player)]
-    eStrength = randint(1, max(player.level, 1))
+    eArmor = earmors[chooseArmor(eHealth)]
+    eArmor.durability = eArmor.maxDurability
+    eWeapon = eweapons[chooseWeapon(player)]
+    eWeapon.durability = eWeapon.maxDurability
+    eStrength = randint(1, player.level+2)
     ennemy = Ennemy(eHealth, eMana, eAttack, eDodge, eArmor, eWeapon, {"Health": eHPotion, "Mana": eMPotion}, [], eLevel, eStrength)
     return ennemy
 
@@ -66,32 +69,35 @@ def playerTurn(player: Player, ennemy: Ennemy):
     global isFleeing
     done = False
     while not done:
-        choice = int(input("Choose your action : 1 = attack | 2 = Drink a potion | 3 = Flee the fight | 4 = View Ennemy stats : "))
-        while not (choice == 1 or choice == 2 or choice == 3 or choice == 4):
-            choice = int(input("Enter a valid option !\nChoose your action : 1 = Attack | 2 = Drink a potion | 3 = Flee the fight | 4 = View Ennemy stats : "))
-        if choice == 1:
-            if player.achieveAttack():
-                damage = player.calculateDamage()
-                ennemy.takeDamage(damage)
-            else:
-                print("You missed your attack !")
-            done = True
+        try:
+            choice = int(input("Choose your action : 1 = attack | 2 = Drink a potion | 3 = Flee the fight | 4 = View Ennemy stats : "))
+            while not (choice == 1 or choice == 2 or choice == 3 or choice == 4):
+                choice = int(input("Enter a valid option !\nChoose your action : 1 = Attack | 2 = Drink a potion | 3 = Flee the fight | 4 = View Ennemy stats : "))
+            if choice == 1:
+                if player.achieveAttack():
+                    damage = player.calculateDamage()
+                    ennemy.takeDamage(damage)
+                else:
+                    print("You missed your attack !")
+                done = True
 
-        elif choice == 2:
-            if player.potions["Health"] > 0:
-                player.utilisePotion("Health")
-            done = True
+            elif choice == 2:
+                if player.potions["Health"] > 0:
+                    player.utilisePotion("Health")
+                done = True
 
-        elif choice == 3:
-            if randint(1, 20) <= player.flee:
-                isFleeing = True
-            else:
-                print("You didn't manage to flee ! :(")
-            done = True
+            elif choice == 3:
+                if randint(1, 20) <= player.flee:
+                    isFleeing = True
+                else:
+                    print("You didn't manage to flee ! :(")
+                done = True
 
-        elif choice == 4:
-            print("")
-            print(ennemy)
+            elif choice == 4:
+                print("")
+                print(ennemy)
+        except:
+            continue
 
 
 def ennemyTurn(player: Player, ennemy: Ennemy):
@@ -107,6 +113,7 @@ def ennemyTurn(player: Player, ennemy: Ennemy):
     elif choice == 2:
         if ennemy.potions["Health"] > 0:
             ennemy.utilisePotion("Health")
+            print("The ennemy took a health potion")
 
 
 class Combat:
@@ -124,13 +131,13 @@ class Combat:
             print(f"The player attacks first.")
             print(f"\nYour Turn :\n")
             playerTurn(player, ennemy)
-            print(f"Enemy's Turn")
+            print(f"\nEnemy's Turn\n")
             ennemyTurn(player, ennemy)
             if not isFleeing:
                 input("\nPress enter to start a new turn")
         else:
             print(f"The ennemy attacks first.")
-            print(f"Enemy's Turn")
+            print(f"\nEnemy's Turn\n")
             ennemyTurn(player, ennemy)
             print(f"\nYour Turn :\n")
             playerTurn(player, ennemy)
@@ -139,6 +146,7 @@ class Combat:
         pass
 
     def combat(self, player: Player):
+        flush_input()
         global isFleeing
         print("The fight will start !!!")
         ennemy = generateEnnemy(player)
