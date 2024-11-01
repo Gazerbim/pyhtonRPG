@@ -1,3 +1,4 @@
+from os import write
 from random import randint
 from utilities import *
 from equipement import *

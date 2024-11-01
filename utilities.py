@@ -1,5 +1,6 @@
 import os
 import msvcrt
+import character
 
 def flush_input():
     try:
