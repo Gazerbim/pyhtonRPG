@@ -2,8 +2,6 @@ from random import randint
 from character import *
 from equipement import *
 from utilities import *
-from forms import *
-
 
 def buyWeapon(player: Player):
     while True:
