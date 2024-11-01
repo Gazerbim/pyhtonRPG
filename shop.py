@@ -2,8 +2,7 @@ from random import randint
 from character import *
 from equipement import *
 from utilities import *
-from forms import *
-
+from Widgets import *
 
 def buyWeapon(player: Player):
     while True:
@@ -16,7 +15,8 @@ def buyWeapon(player: Player):
         for weapon in range(len(weapons)):
             widget.add_choice(f"{weapons[weapon].name} (+{weapons[weapon].damage} dmg) | {weapons[weapon].value}€")
         widget.add_choice(f"Quit the menu :")
-        widget.run(prefix)
+        widget.setPrefix(prefix)
+        widget.run()
         choice = widget.cursor
         if choice == len(weapons):  # Quit the menu
             break
@@ -40,7 +40,8 @@ def buyArmor(player: Player):
         for armor in range(len(armors)):
             widget.add_choice(f"{armors[armor].name} (+{armors[armor].protection} protection) | {armors[armor].value}€")
         widget.add_choice(f"Quit the menu :")
-        widget.run(prefix)
+        widget.setPrefix(prefix)
+        widget.run()
         choice = widget.cursor
         if choice == len(armors):  # Quit the menu
             break
@@ -67,7 +68,8 @@ def buyPotion(player: Player):
         for potion in range(len(tabPotions)):
             widget.add_choice(f"{tabPotions[potion][0]} potion | {tabPotions[potion][1]}€")
         widget.add_choice(f"Quit the menu :")
-        widget.run(prefix)
+        widget.setPrefix(prefix)
+        widget.run()
         choice = widget.cursor
         if choice == len(tabPotions):  # Quit the menu
             break
@@ -93,7 +95,8 @@ def handleShop(player: Player):
         widget.add_choice("Buy Armors")
         widget.add_choice("Buy Potions")
         widget.add_choice("Quit the shop")
-        widget.run(prefix)
+        widget.setPrefix(prefix)
+        widget.run()
         choice = widget.cursor
         if choice == 0:
             buyWeapon(player)

@@ -1,3 +1,4 @@
+from os import write
 from random import randint
 from utilities import *
 from equipement import *
@@ -87,7 +88,7 @@ class Player:
         self.initializePlayer()
 
     def initializePlayer(self):
-        self.pseudo = input("What is your pseudo ? : ")
+        self.pseudo = input("What is your nickname ? : ")
         self.weapon = stick
         self.armor = tunic
         self.gold = 50
