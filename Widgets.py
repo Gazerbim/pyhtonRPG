@@ -2,6 +2,7 @@ import os
 import string
 from pynput import keyboard
 import shutil
+from utilities import *
 
 class Bar:
 	def __init__(self, health, maxhealth, barsize=20, showBorder=True, showPercent=True, showHealth=False):
@@ -146,7 +147,8 @@ class ChooseWidget:
 					f"Option {option} already exist in the option, you can avoid this error by turning true flag named 'AllowSeveralSameOption'")
 
 			else:
-				raise Warning(f"Option {option} has been accepted, although her name already in the options'list")
+				# raise Warning(f"Option {option} has been accepted, although her name already in the options'list")
+				pass
 		self.options.append(option)
 
 	def rmv_choice(self, index=None, name=None):
@@ -261,3 +263,4 @@ class ChooseWidget:
 
 		self.cursor = 0
 		self.isEnter = False
+		flush_input()

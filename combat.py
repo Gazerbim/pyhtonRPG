@@ -1,9 +1,10 @@
+import time
 from random import randint
 from character import *
 from equipement import *
 from utilities import *
-
-
+from Widgets import *
+from spells import *
 isFleeing = False
 
 
@@ -64,90 +65,211 @@ def calculateXpLevels(level):
     return xp
 
 
-def playerTurn(player: Player, ennemy: Ennemy):
-    global isFleeing
-    done = False
-    while not done:
-        try:
-            choice = int(input("Choose your action : 1 = attack | 2 = Drink a potion | 3 = Flee the fight | 4 = View Ennemy stats : "))
-            while not (choice == 1 or choice == 2 or choice == 3 or choice == 4):
-                choice = int(input("Enter a valid option !\nChoose your action : 1 = Attack | 2 = Drink a potion | 3 = Flee the fight | 4 = View Ennemy stats : "))
-            if choice == 1:
-                if player.achieveAttack():
-                    damage = player.calculateDamage()
-                    ennemy.takeDamage(damage)
-                else:
-                    print("You missed your attack !")
-                done = True
-
-            elif choice == 2:
-                if player.potions["Health"] > 0:
-                    player.usePotion("Health")
-                done = True
-
-            elif choice == 3:
-                if randint(1, 20) <= player.flee:
-                    isFleeing = True
-                else:
-                    print("You didn't manage to flee ! :(")
-                done = True
-
-            elif choice == 4:
-                print("")
-                print(ennemy)
-        except:
-            continue
-
-
-def ennemyTurn(player: Player, ennemy: Ennemy):
-    choice = ennemy.chooseStrategy()
-    print(f"Ennemy choice is {choice}")
-    if choice == 1:
-        if ennemy.achieveAttack():
-            damage = ennemy.calculateDamage()
-            player.takeDamage(damage)
-        else:
-            print("The ennemy missed it's attack!")
-
-    elif choice == 2:
-        if ennemy.potions["Health"] > 0:
-            ennemy.usePotion("Health")
-            print("The ennemy took a health potion")
-
-    elif choice == 2:
-        if ennemy.potions["Mana"] > 0:
-            ennemy.usePotion("Mana")
-            print("The ennemy took a mana potion")
-
-
 class Combat:
     def __init__(self):
         self.rounds = 0
+        self.roundText = []
+        self.done = False
+
+    def chooseSpellToLaunch(self, player: Player):
+        while True:
+            clearTerminal()
+            widget = ChooseWidget()
+            for spell in player.spells:
+                widget.add_choice(spell.name)
+            widget.add_choice("Go back to the action menu")
+            widget.setPrefix("Select a spell\n")
+            choice = widget.run() - 1
+            if choice == len(player.spells):
+                self.done = False
+                return
+            clearTerminal()
+            widget = ChooseWidget()
+            widget.setPrefix(f"{player.spells[choice].name} : \n{player.spells[choice].description}\nCost : {player.spells[choice].manaCost} mana\n")
+            widget.add_choice("Use spell")
+            widget.add_choice("Go back to the spell menu")
+            choice2 = widget.run()
+            if choice2 == 1:
+                return player.spells[choice]
+            else:
+                continue
+
+    def choosePotion(self, player: Player):
+        while True:
+            clearTerminal()
+            widget = ChooseWidget()
+            for i in tabPotions:
+                widget.add_choice(i[0] + f" | You have {player.potions[i[0]]}")
+            widget.add_choice("Go back to the action menu")
+            widget.setPrefix("Choose a potion to use:\n")
+            choice = widget.run() - 1
+            flush_input()
+            if choice == len(tabPotions):
+                self.done = False
+                return
+            if player.potions[tabPotions[choice][0]] <= 0:
+                continue
+            player.usePotion(tabPotions[choice][0])
+            return tabPotions[choice][0]
+
+    def returnRoundText(self):
+        string = ""
+        for i in self.roundText:
+            string += i + "\n"
+        return string
+
+    def playerTurn(self, player: Player, ennemy: Ennemy):
+        global isFleeing
+        self.done = False
+        while not self.done:
+            try:
+                clearTerminal()
+                widget = ChooseWidget()
+                widget.add_choice("Attack")
+                widget.add_choice("Drink a potion")
+                widget.add_choice("Flee the fight")
+                widget.add_choice("Launch a spell")
+                widget.add_choice("View Ennemy stats")
+                widget.add_choice("View your stats")
+                widget.setPrefix(self.returnRoundText())
+                choice = widget.run()
+                flush_input()
+                clearTerminal()
+                print(self.returnRoundText())
+                if choice == 1:
+                    if player.achieveAttack():
+                        damage, isWBroken = player.calculateDamage()
+                        s = ennemy.takeDamage(damage)
+                        print(f"You dealt {s} damage to the ennemy")
+                        self.roundText.append(f"You dealt {s} to the ennemy")
+                        if isWBroken:
+                            print("Your weapon is broken ! (buy another)")
+                            self.roundText.append("Your weapon is broken ! (buy another)")
+                    else:
+                        print("You missed your attack !")
+                        self.roundText.append("You missed your attack !")
+                    self.done = True
+
+                elif choice == 2:
+                    self.done = True
+                    potion = self.choosePotion(player)
+                    clearTerminal()
+                    print(self.returnRoundText())
+                    print(f"You took a {potion} potion")
+                    self.roundText.append(f"You took a {potion} potion")
+                    if not self.done:
+                        continue
+
+                elif choice == 3:
+                    if randint(1, 20) <= player.flee:
+                        isFleeing = True
+                    else:
+                        print("You didn't manage to flee ! :(")
+                        self.roundText.append("You didn't manage to flee ! :(")
+                    self.done = True
+
+                elif choice == 4:
+                    self.done = True
+                    clearTerminal()
+                    launchedSpell = self.chooseSpellToLaunch(player)
+                    if self.done:
+                        if player.mana >= launchedSpell.manaCost:
+                            player.mana = player.mana - launchedSpell.manaCost
+                            launchedSpell.applySpellOnEnnemy(ennemy, player)
+                            clearTerminal()
+                            print(self.returnRoundText())
+                            print(f"{launchedSpell.name} was lanched !")
+                        else:
+                            print("You don't have enough mana !")
+                            self.roundText.append("You don't have enough mana !")
+                        flush_input()
+                        continue
+                    else:
+                        flush_input()
+                        continue
+
+                elif choice == 5:
+                    print("")
+                    self.roundText.append("")
+                    print(ennemy)
+                    self.roundText.append(ennemy.__str__())
+
+                elif choice == 6:
+                    print("")
+                    self.roundText.append("")
+                    print(player)
+                    self.roundText.append(player.__str__())
+
+            except Exception as e:
+                print(e)
+                flush_input()
+                input()
+                continue
+
+    def ennemyTurn(self, player: Player, ennemy: Ennemy):
+        choice = ennemy.chooseStrategy()
+
+        if choice == 1:
+            print("The ennemy attacks !")
+            self.roundText.append("The ennemy attacks !")
+            if ennemy.achieveAttack():
+                damage = ennemy.calculateDamage()
+                s, isABroken = player.takeDamage(damage)
+                print(f"You took {s} damage !")
+                self.roundText.append(f"You took {s} damage !")
+                if isABroken:
+                    print("Your armor is broken ! (buy another)")
+                    self.roundText.append("Your armor is broken ! (buy another)")
+            else:
+                print("The ennemy missed it's attack!")
+                self.roundText.append("The ennemy missed it's attack!")
+
+        elif choice == 2:
+            if ennemy.potions["Health"] > 0:
+                ennemy.usePotion("Health")
+                print("The ennemy took a health potion")
+                self.roundText.append("The ennemy took a health potion")
+
+        elif choice == 2:
+            if ennemy.potions["Mana"] > 0:
+                ennemy.usePotion("Mana")
+                print("The ennemy took a mana potion")
+                self.roundText.append("The ennemy took a mana potion")
 
     def turn(self, ennemy: Ennemy, player: Player):
+        self.roundText = []  # set the prints to []
         clearTerminal()
         print("===========================================")
+        self.roundText.append("===========================================")
         print(f"Turn {self.rounds} :\n")
+        self.roundText.append(f"Turn {self.rounds} :\n")
         initiative = randint(0, 1)
-        player.printCombatInfos()
-        ennemy.printCombatInfos()
+        self.roundText.append(player.printCombatInfos())
+        self.roundText.append(ennemy.printCombatInfos())
         if initiative == 1:  # the player play first
-            print(f"The player attacks first.")
-            print(f"\nYour Turn :\n")
-            playerTurn(player, ennemy)
-            print(f"\nEnemy's Turn\n")
-            ennemyTurn(player, ennemy)
+            print("The player attacks first.")
+            self.roundText.append("The player attacks first.")
+            print("\nYour Turn :\n")
+            self.roundText.append("\nYour Turn :\n")
+            self.playerTurn(player, ennemy)
+            print("\nEnemy's Turn\n")
+            self.roundText.append("\nEnemy's Turn :\n")
+            self.ennemyTurn(player, ennemy)
+            flush_input()
             if not isFleeing:
                 input("\nPress enter to start a new turn")
         else:
             print(f"The ennemy attacks first.")
+            self.roundText.append("The ennemy attacks first.")
             print(f"\nEnemy's Turn\n")
-            ennemyTurn(player, ennemy)
+            self.roundText.append("\nEnemy's Turn :\n")
+            self.ennemyTurn(player, ennemy)
             print(f"\nYour Turn :\n")
-            playerTurn(player, ennemy)
+            self.roundText.append("\nYour Turn :\n")
+            self.playerTurn(player, ennemy)
+            flush_input()
             if not isFleeing:
                 input("\nPress enter to start a new turn")
-        pass
 
     def combat(self, player: Player):
         flush_input()
@@ -158,6 +280,7 @@ class Combat:
         print("You will fight : ")
         print(ennemy)
         input("\nPress enter to start the fight")
+        player.resetBetweenCombats()
         while (ennemy.health > 0 and player.health > 0) and not isFleeing:  # boucle de combat
             self.rounds += 1
             self.turn(ennemy, player)
