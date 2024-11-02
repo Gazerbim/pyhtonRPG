@@ -82,7 +82,7 @@ def playerTurn(player: Player, ennemy: Ennemy):
 
             elif choice == 2:
                 if player.potions["Health"] > 0:
-                    player.utilisePotion("Health")
+                    player.usePotion("Health")
                 done = True
 
             elif choice == 3:
@@ -111,8 +111,13 @@ def ennemyTurn(player: Player, ennemy: Ennemy):
 
     elif choice == 2:
         if ennemy.potions["Health"] > 0:
-            ennemy.utilisePotion("Health")
+            ennemy.usePotion("Health")
             print("The ennemy took a health potion")
+
+    elif choice == 2:
+        if ennemy.potions["Mana"] > 0:
+            ennemy.usePotion("Mana")
+            print("The ennemy took a mana potion")
 
 
 class Combat:

@@ -8,15 +8,24 @@ class Ennemy:
     def __init__(self, health, mana, atk, flee, armor, weapon, potions, spells, level, strength):
         self.maxHealth = health
         self.health = health
+
         self.maxMana = mana
         self.mana = mana
+
         self.armor = armor
         self.weapon = weapon
         self.potions = potions
         self.spells = spells
+
         self.level = level
+
+        self.maxAttack = atk
         self.atk = atk
+
+        self.maxFlee = flee
         self.flee = flee
+
+        self.maxStrength = strength
         self.strength = strength
 
     def calculateDamage(self):  # Calculate attack damage
@@ -47,14 +56,19 @@ class Ennemy:
 
     def chooseStrategy(self):
         if self.health/self.maxHealth < 0.1 and self.potions["Health"] > 0:
-            return 2  # drink a potion
+            return 2  # drink a health potion
+        elif self.mana/self.maxMana < 0.1 and self.potions["Mana"] > 0:
+            return 3  # drink a mana potion
         else:
             return 1  # attack normally
 
-    def utilisePotion(self, potion):
+    def usePotion(self, potion):
         if potion == "Health":
             self.potions[potion] -= 1
             self.health = min(self.health + 30 + self.level * 5, self.maxHealth)
+        if potion == "Mana":
+            self.potions[potion] -= 1
+            self.mana = min(self.mana + 30 + self.level * 5, self.maxMana)
 
     def printCombatInfos(self):
         print(f"Ennemy : HP = {self.health}/{self.maxHealth} | Mana = {self.mana}/{self.maxMana}")
@@ -71,24 +85,36 @@ class Player:
 
     def __init__(self, health, mana, atk, flee, gold, strength):
         self.pseudo = ""
+
         self.maxHealth = health
         self.health = health
+
         self.maxMana = mana
         self.mana = mana
+
         self.armor = None
         self.weapon = None
         self.xp = 0
         self.potions = {"Health": 0, "Mana": 0}
         self.spells = []
+
         self.level = 1
+
+        self.maxAttack = atk
         self.atk = atk
+
+        self.maxFlee = flee
         self.flee = flee
-        self.gold = gold
+
+        self.maxStrength = strength
         self.strength = strength
+
+        self.gold = gold
+
         self.initializePlayer()
 
     def initializePlayer(self):
-        self.pseudo = input("What is your pseudo ? : ")
+        self.pseudo = input("What is your nickname ? : ")
         self.weapon = stick
         self.armor = tunic
         self.gold = 50
@@ -144,10 +170,13 @@ class Player:
         if self.armor.durability == 0:
             print("Your armor is broken ! (buy another)")
 
-    def utilisePotion(self, potion):
+    def usePotion(self, potion):
         if potion == "Health":
             self.potions[potion] -= 1
             self.health = min(self.health + 30 + self.level*5, self.maxHealth)
+        if potion == "Mana":
+            self.potions[potion] -= 1
+            self.mana = min(self.mana + 30 + self.level * 5, self.maxMana)
 
     def printCombatInfos(self):
         print(f"{self.pseudo} : HP = {self.health}/{self.maxHealth} | Mana = {self.mana}/{self.maxMana}")
