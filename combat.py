@@ -41,6 +41,30 @@ def chooseNumberPotions(level):
     return i
 
 
+def chooseSpells(player: Player):
+    if 1 <= player.level <= 5:
+        ind1 = 0
+        ind2 = 0
+        while ind1 == ind2:
+            ind1 = randint(0, len(tierSpells[1]) - 1)
+            ind2 = randint(0, len(tierSpells[1]) - 1)
+        tabSpell = [tierSpells[1][ind1], tierSpells[1][ind2]]
+    elif 6 <= player.level <= 10:
+        ind1 = 0
+        ind2 = 0
+        ind3 = randint(0, len(tierSpells[1]) - 1)
+        while ind1 == ind2:
+            ind1 = randint(0, len(tierSpells[2]) - 1)
+            ind2 = randint(0, len(tierSpells[2]) - 1)
+        tabSpell = [tierSpells[1][ind3], tierSpells[2][ind1], tierSpells[2][ind2]]
+    elif 11 <= player.level:
+        ind1 = randint(0, len(tierSpells[1]) - 1)
+        ind2 = randint(0, len(tierSpells[2]) - 1)
+        ind3 = randint(0, len(tierSpells[3]) - 1)
+        tabSpell = [tierSpells[1][ind1], tierSpells[2][ind2], tierSpells[2][ind3]]
+    return tabSpell
+
+
 def generateEnnemy(player: Player):
     eLevel = randint(1, player.level+2)
     eAttack = 10 + eLevel - randint(0, eLevel)
@@ -54,7 +78,8 @@ def generateEnnemy(player: Player):
     eWeapon = eweapons[chooseWeapon(player)]
     eWeapon.durability = eWeapon.maxDurability
     eStrength = randint(1, player.level+2)
-    ennemy = Ennemy(eHealth, eMana, eAttack, eDodge, eArmor, eWeapon, {"Health": eHPotion, "Mana": eMPotion}, [], eLevel, eStrength)
+    tabSpells = chooseSpells(player)
+    ennemy = Ennemy(eHealth, eMana, eAttack, eDodge, eArmor, eWeapon, {"Health": eHPotion, "Mana": eMPotion}, tabSpells, eLevel, eStrength)
     return ennemy
 
 
@@ -208,7 +233,6 @@ class Combat:
 
     def ennemyTurn(self, player: Player, ennemy: Ennemy):
         choice = ennemy.chooseStrategy()
-
         if choice == 1:
             print("The ennemy attacks !")
             self.roundText.append("The ennemy attacks !")
@@ -230,11 +254,47 @@ class Combat:
                 print("The ennemy took a health potion")
                 self.roundText.append("The ennemy took a health potion")
 
-        elif choice == 2:
+        elif choice == 3:
             if ennemy.potions["Mana"] > 0:
                 ennemy.usePotion("Mana")
                 print("The ennemy took a mana potion")
                 self.roundText.append("The ennemy took a mana potion")
+
+        elif choice == 4:
+            spells = ennemy.returnSpells("Buff")
+            spellCanUse = ennemy.returnSpellCanLaunch(spells)
+            if len(spellCanUse) > 1:
+                ind = randint(0, len(spellCanUse) - 1)
+            else:
+                ind = 0
+            spell = spellCanUse[ind]
+            spell.applySpellOnPlayer(ennemy, player)
+            print(f"The ennemy launched the spell '{spell.name}' ({spell.description})'")
+            self.roundText.append(f"The ennemy launched the spell '{spell.name}' ({spell.description})'")
+
+        elif choice == 5:
+            spells = ennemy.returnSpells("Debuff")
+            spellCanUse = ennemy.returnSpellCanLaunch(spells)
+            if len(spellCanUse) > 1:
+                ind = randint(0, len(spellCanUse) - 1)
+            else:
+                ind = 0
+            spell = spellCanUse[ind]
+            spell.applySpellOnPlayer(ennemy, player)
+            print(f"The ennemy launched the spell '{spell.name}' ({spell.description})'")
+            self.roundText.append(f"The ennemy launched the spell '{spell.name}' ({spell.description})'")
+
+        elif choice == 6:
+            spells = ennemy.returnSpells("Heal")
+            spellCanUse = ennemy.returnSpellCanLaunch(spells)
+            if len(spellCanUse) > 1:
+                ind = randint(0, len(spellCanUse) - 1)
+            else:
+                ind = 0
+            spell = spellCanUse[ind]
+            spell.applySpellOnPlayer(ennemy, player)
+            print(f"The ennemy launched the spell '{spell.name}' ({spell.description})'")
+            self.roundText.append(f"The ennemy launched the spell '{spell.name}' ({spell.description})'")
 
     def turn(self, ennemy: Ennemy, player: Player):
         self.roundText = []  # set the prints to []
@@ -280,12 +340,12 @@ class Combat:
         print("You will fight : ")
         print(ennemy)
         input("\nPress enter to start the fight")
-        player.resetBetweenCombats()
         while (ennemy.health > 0 and player.health > 0) and not isFleeing:  # boucle de combat
             self.rounds += 1
             self.turn(ennemy, player)
         clearTerminal()
         print("==================END OF THE FIGHT========================")
+        player.resetBetweenCombats()
         if isFleeing:
             print("You successfully flew ")
             isFleeing = False

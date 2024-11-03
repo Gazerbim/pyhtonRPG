@@ -1,15 +1,14 @@
-from equipement import *
 from character import *
+from utilities import *
 from shop import *
 from combat import *
-from spells import *
 from Widgets import *
 import time
 
 def main():
     title = BigTitle()
     clearTerminal()
-    title.centerFont("HARD FIGHT")
+    title.centerFont("METARUNNERS")
     time.sleep(2)
     clearTerminal()
     player = Player(100, 100, 10, 1, 0, 2)
@@ -21,7 +20,7 @@ def main():
         combat.combat(player)
 
 
-# ability point
+# meta point
 
 if __name__ == '__main__':
     main()

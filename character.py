@@ -54,13 +54,50 @@ class Ennemy:
             pass
         return damageTook
 
+    def haveSpell(self, category):
+        for spell in self.spells:
+            if spell.category == category:
+                return True
+        return False
+
+    def returnSpells(self, category):
+        tabSpell = []
+        for spell in self.spells:
+            if spell.category == category:
+                tabSpell.append(spell)
+        return tabSpell
+
+    def canUseOneSpell(self, tabSpells):
+        for spell in tabSpells:
+            if spell.manaCost <= self.mana:
+                return True
+        return False
+
+    def returnSpellCanLaunch(self, tabSpell):
+        tabSpellCanUse = []
+        for spell in tabSpell:
+            if spell.manaCost <= self.mana:
+                tabSpellCanUse.append(spell)
+        return tabSpellCanUse
+
     def chooseStrategy(self):
-        if self.health/self.maxHealth < 0.1 and self.potions["Health"] > 0:
-            return 2  # drink a health potion
-        elif self.mana/self.maxMana < 0.1 and self.potions["Mana"] > 0:
-            return 3  # drink a mana potion
-        else:
-            return 1  # attack normally
+        while True:
+            if self.health/self.maxHealth < 0.1 and self.potions["Health"] > 0:
+                return 2  # drink a health potion
+            elif self.health/self.maxHealth < 0.1 and self.haveSpell("Heal") and self.canUseOneSpell(self.returnSpells("Heal")):
+                return 6  # use a healing spell
+            elif (not self.canUseOneSpell(self.spells) or self.mana/self.maxMana < 0.2) and self.potions["Mana"] > 0:
+                return 3  # drink a mana potion
+            else:
+                choice = randint(1, 5)
+                if choice == 1 or choice == 2 or choice == 3:
+                    return 1  # attack normally
+                elif choice == 4:
+                    if self.haveSpell("Buff") and self.canUseOneSpell(self.returnSpells("Buff")):
+                        return 4  # use a buff spell
+                elif choice == 5:
+                    if self.haveSpell("Debuff") and self.canUseOneSpell(self.returnSpells("Debuff")):
+                        return 5  # use a debuff spell
 
     def usePotion(self, potion):
         if potion == "Health":
@@ -78,7 +115,10 @@ class Ennemy:
         return string + "\n"
 
     def __str__(self):
-        return f"This enemy's perks are : Level = {self.level} | Health = {self.health}/{self.maxHealth} | Mana = {self.mana}/{self.maxMana} | Attack = {self.atk} | Strength = {self.strength}.\nHe owns a {self.armor.name}, a {self.weapon.name}\nHe possesses {self.potions['Health']} health potions and {self.potions['Mana']} mana potions.\n"
+        spellsName = []
+        for spell in self.spells:
+            spellsName.append(spell.name)
+        return f"This enemy's perks are : Level = {self.level} | Health = {self.health}/{self.maxHealth} | Mana = {self.mana}/{self.maxMana} | Attack = {self.maxAttack}+({self.atk-self.maxAttack}) | Strength = {self.maxStrength}+({self.strength-self.maxStrength}).\nHe owns a {self.armor.name}, a {self.weapon.name}\nHe possesses {self.potions['Health']} health potions and {self.potions['Mana']} mana potions.\nHis spell are : {spellsName}\n"
 
 
 class Player:
@@ -144,24 +184,24 @@ class Player:
     def giveSpell(self):
         if 1 <= self.level <= 5:
             ind1 = 0
-            ind2 = 1
+            ind2 = 0
             while ind1 == ind2:
-                ind1 = randint(0, len(tierSpells[1]) - 1)
-                ind2 = randint(0, len(tierSpells[1]) - 1)
-            tabSpell = [tierSpells[1][ind1], tierSpells[1][ind2]]
+                ind1 = randint(0, len(playerTierSpells[1]) - 1)
+                ind2 = randint(0, len(playerTierSpells[1]) - 1)
+            tabSpell = [playerTierSpells[1][ind1], playerTierSpells[1][ind2]]
         elif 6 <= self.level <= 10:
             ind1 = 0
-            ind2 = 1
-            ind3 = randint(0, len(tierSpells[1]) - 1)
+            ind2 = 0
+            ind3 = randint(0, len(playerTierSpells[1]) - 1)
             while ind1 == ind2:
-                ind1 = randint(0, len(tierSpells[2]) - 1)
-                ind2 = randint(0, len(tierSpells[2]) - 1)
-            tabSpell = [tierSpells[1][ind3], tierSpells[2][ind1], tierSpells[2][ind2]]
+                ind1 = randint(0, len(playerTierSpells[2]) - 1)
+                ind2 = randint(0, len(playerTierSpells[2]) - 1)
+            tabSpell = [playerTierSpells[1][ind3], playerTierSpells[2][ind1], playerTierSpells[2][ind2]]
         elif 11 <= self.level:
-            ind1 = randint(0, len(tierSpells[1]) - 1)
-            ind2 = randint(0, len(tierSpells[2]) - 1)
-            ind3 = randint(0, len(tierSpells[3]) - 1)
-            tabSpell = [tierSpells[1][ind1], tierSpells[2][ind2], tierSpells[2][ind3]]
+            ind1 = randint(0, len(playerTierSpells[1]) - 1)
+            ind2 = randint(0, len(playerTierSpells[2]) - 1)
+            ind3 = randint(0, len(playerTierSpells[3]) - 1)
+            tabSpell = [playerTierSpells[1][ind1], playerTierSpells[2][ind2], playerTierSpells[2][ind3]]
         return tabSpell
 
     def chooseSpell(self, tabSpells):
@@ -212,10 +252,13 @@ class Player:
         flush_input()
         if choice == 1:
             self.atk += 1
+            self.maxAttack += 1
         elif choice == 2:
             self.flee += 1
+            self.maxFlee += 1
         elif choice == 3:
             self.strength += 1
+            self.maxStrength += 1
         self.maxHealth += randint(10, 30)
         self.maxMana += randint(10, 30)
         self.health = self.maxHealth
@@ -262,13 +305,14 @@ class Player:
         return string + "\n"
 
     def __str__(self):
-        return f"{self.pseudo} : Health = {self.health}/{self.maxHealth} | Mana = {self.mana}/{self.maxMana} | Xp = {self.xp} |Attack = {self.atk} | Flee = {self.flee} | Strength = {self.strength}.\nYou own a {self.armor.name} ({self.armor.durability}/{self.armor.maxDurability} durability), a {self.weapon.name} ({self.weapon.durability}/{self.weapon.maxDurability} durability)\nYou possess {self.potions['Health']} health potions and {self.potions['Mana']} mana potions.\n"
+        return f"{self.pseudo} : Health = {self.health}/{self.maxHealth} | Mana = {self.mana}/{self.maxMana} | Xp = {self.xp} |Attack = {self.maxAttack}+({self.atk-self.maxAttack}) | Flee = {self.maxFlee}+({self.flee-self.maxFlee}) | Strength = {self.maxStrength}+({self.strength-self.maxStrength}).\nYou own a {self.armor.name} ({self.armor.durability}/{self.armor.maxDurability} durability), a {self.weapon.name} ({self.weapon.durability}/{self.weapon.maxDurability} durability)\nYou possess {self.potions['Health']} health potions and {self.potions['Mana']} mana potions.\n"
 
 
 class Spell:
-    def __init__(self, name, description, manaCost):
+    def __init__(self, name, description, manaCost, category):
         self.name = name
         self.description = description
+        self.category = category
         self.manaCost = manaCost
 
         # Player attributes
@@ -384,42 +428,99 @@ class Spell:
             self.applySpellOnPlayer(ennemy, player)
 
 """=========Spell definition==========="""
-oneHpSpell = Spell("Lunar Attack", "Set the ennemy's life to 1% and reduce your attack by 10 and your life by 50", 100)  # met a un hp et debuff attack
+oneHpSpell = Spell("Lunar Attack", "Set the ennemy's life to 1% and reduce your attack by 10 and your life by 50", 100, "Debuff")  # met a un hp et debuff attack
 oneHpSpell.isEDamageProp = True
 oneHpSpell.eDamage = -99
 oneHpSpell.attackAttribute = -10
 oneHpSpell.damage = -50
 
-heal = Spell("Simple Heal", "Will heal a small amount of health", 15)
+heal = Spell("Simple Heal", "Heal a small amount of health", 15, "Heal")
 heal.damage = 15
 
-betterHeal = Spell("High Heal", "Will heal a medium amount of health", 40)
+betterHeal = Spell("High Heal", "Heal a medium amount of health", 40, "Heal")
 betterHeal.damage = 50
 
-superHeal = Spell("Super Heal", "Will heal a high amount of health", 70)
+superHeal = Spell("Super Heal", "Heal a high amount of health", 70, "Heal")
 superHeal.damage = 100
 
-weakness1 = Spell("Light Weakness", "Reduce the ennemy' strength by 20%", 20)
+weakness1 = Spell("Light Weakness", "Reduce the ennemy's strength by 20%", 20, "Debuff")
 weakness1.eStrengthAttribute = 20
 weakness1.isEStrengthProp = True
 
-weakness2 = Spell("Heavy Weakness", "Reduce the ennemy' strength by 50%", 100)
+weakness2 = Spell("Heavy Weakness", "Reduce the ennemy's strength by 50%", 100, "Debuff")
 weakness2.eStrengthAttribute = 50
 weakness2.isEStrengthProp = True
 
-reinforcement = Spell("Reinforcement", "Increase your strength by 5", 30)
+reinforcement = Spell("Reinforcement", "Increase strength by 5", 30, "Buff")
 reinforcement.strengthAttribute = 5
 
-berserk = Spell("Berserk Fury", "Triple your strength but reduce your attack", 50)
+berserk = Spell("Berserk Fury", "Triple strength but reduce attack", 50, "Buff")
 berserk.strengthAttribute = 200
 berserk.isStrengthProp = True
 berserk.attackAttribute = -50
 berserk.isAttackProp = True
 
-coward = Spell("Coward", "Increase your chances to flee the fight but reduce your attack", 50)
+coward = Spell("Coward", "Increase chances to flee the fight but reduce attack", 50, "Buff")
 coward.fleeAttribute = 5
 coward.attackAttribute = -50
 coward.isAttackProp = True
 
+revitalization = Spell("Revitalization", "Restores a moderate amount of health and slightly increases flee chance", 60, "Heal")
+revitalization.damage = 40
+revitalization.fleeAttribute = 5
+
+flameStrike = Spell("Flame Strike", "Deals 40 damage to the enemy and reduces their strength by 10%", 70, "Debuff")
+flameStrike.eDamage = -40
+flameStrike.eStrengthAttribute = -10
+flameStrike.isEStrengthProp = True
+
+iceBarrier = Spell("Ice Barrier", "Deals 20 damage to the enemy and reduces their flee chance by 20%", 50, "Debuff")
+iceBarrier.eDamage = -20  # Inflige 30 dégâts à l'ennemi
+iceBarrier.eFleeAttribute = -20
+iceBarrier.isEFleeProp = True
+
+cripple = Spell("Cripple", "Reduces enemy's attack and strength by 15%", 45, "Debuff")
+cripple.eAttackAttribute = -30
+cripple.isEAttackProp = True
+cripple.eStrengthAttribute = -30
+cripple.isEStrengthProp = True
+
+mightyBlow = Spell("Mighty Blow", "Increases attack by 25%", 40, "Buff")
+mightyBlow.attackAttribute = 25
+mightyBlow.isAttackProp = True
+
+sacrifice = Spell("Sacrifice", "Deals 70 damage to the enemy but reduces your health by 30", 60, "Debuff")
+sacrifice.eDamage = -70  # Deals 70 direct damage to the enemy
+sacrifice.damage = -30  # Reduces player's health by 30 points
+
+overload = Spell("Overload", "Doubles attack but halves strength", 50, "Buff")
+overload.attackAttribute = 100  # Increases attack by 100% (doubles)
+overload.isAttackProp = True
+overload.strengthAttribute = -50  # Reduces strength by 50%
+overload.isStrengthProp = True
+
+soulDrain = Spell("Soul Drain", "Drains enemy's strength but lowers attack", 60, "Debuff")
+soulDrain.eStrengthAttribute = -90  # Lowers enemy's strength by 90%
+soulDrain.isEStrengthProp = True
+soulDrain.StrengthAttribute = 10
+soulDrain.attackAttribute = -10  # Reduces player's attack by 10 points
+
+powerSurge = Spell("Power Surge", "Increases strength by 40 but lowers health by 50", 150, "Buff")
+powerSurge.strengthAttribute = 40  # Increases strength by 40 points
+powerSurge.damage = -70  # Decreases player's health by 70%
+powerSurge.isDamageProp = True
+
+vampireBite = Spell("Vampire Bite", "Drain health from the ennemy", 50, "Heal")
+vampireBite.damage = 20
+vampireBite.eDamage = 20
+
+infernoBlast = Spell("Inferno Blast", "Deals 100 damage to the enemy but costs 30 health", 120, "Debuff")
+infernoBlast.eDamage = -100  # Deals 100 damage to the enemy
+infernoBlast.damage = -30  # Reduces player's health by 30 points
+
+precision = Spell("Precision", "Slightly increase your attack", 40, "Buff")
+precision.attackAttribute = 20
+precision.isAttackProp = True
 """==========Spell Array============"""
-tierSpells = {1: [heal, reinforcement], 2: [betterHeal, weakness2, berserk], 3: [superHeal, oneHpSpell]}
+tierSpells = {1: [heal, reinforcement, iceBarrier, cripple, mightyBlow, overload, vampireBite, precision], 2: [betterHeal, weakness2, berserk, flameStrike, sacrifice, soulDrain], 3: [superHeal, infernoBlast]}  # Spells that the ennemy can use
+playerTierSpells = {1: [heal, reinforcement, cripple, mightyBlow, overload, vampireBite, precision], 2: [betterHeal, weakness2, berserk, revitalization, flameStrike, sacrifice, soulDrain], 3: [superHeal, oneHpSpell, infernoBlast]}  # Spells that the player can use
