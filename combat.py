@@ -271,6 +271,7 @@ class Combat:
             spell.applySpellOnPlayer(ennemy, player)
             print(f"The ennemy launched the spell '{spell.name}' ({spell.description})'")
             self.roundText.append(f"The ennemy launched the spell '{spell.name}' ({spell.description})'")
+            ennemy.mana = max(ennemy.mana - spell.manaCost, 0)
 
         elif choice == 5:
             spells = ennemy.returnSpells("Debuff")
@@ -283,6 +284,7 @@ class Combat:
             spell.applySpellOnPlayer(ennemy, player)
             print(f"The ennemy launched the spell '{spell.name}' ({spell.description})'")
             self.roundText.append(f"The ennemy launched the spell '{spell.name}' ({spell.description})'")
+            ennemy.mana = max(ennemy.mana - spell.manaCost, 0)
 
         elif choice == 6:
             spells = ennemy.returnSpells("Heal")
@@ -295,6 +297,7 @@ class Combat:
             spell.applySpellOnPlayer(ennemy, player)
             print(f"The ennemy launched the spell '{spell.name}' ({spell.description})'")
             self.roundText.append(f"The ennemy launched the spell '{spell.name}' ({spell.description})'")
+            ennemy.mana = max(ennemy.mana - spell.manaCost, 0)
 
     def turn(self, ennemy: Ennemy, player: Player):
         self.roundText = []  # set the prints to []
@@ -307,8 +310,8 @@ class Combat:
         self.roundText.append(player.printCombatInfos())
         self.roundText.append(ennemy.printCombatInfos())
         if initiative == 1:  # the player play first
-            print("The player attacks first.")
-            self.roundText.append("The player attacks first.")
+            print("The player plays first.")
+            self.roundText.append("The player plays first.")
             print("\nYour Turn :\n")
             self.roundText.append("\nYour Turn :\n")
             self.playerTurn(player, ennemy)
@@ -319,8 +322,8 @@ class Combat:
             if not isFleeing:
                 input("\nPress enter to start a new turn")
         else:
-            print(f"The ennemy attacks first.")
-            self.roundText.append("The ennemy attacks first.")
+            print(f"The ennemy plays first.")
+            self.roundText.append("The ennemy plays first.")
             print(f"\nEnemy's Turn\n")
             self.roundText.append("\nEnemy's Turn :\n")
             self.ennemyTurn(player, ennemy)
@@ -345,18 +348,23 @@ class Combat:
             self.turn(ennemy, player)
         clearTerminal()
         print("==================END OF THE FIGHT========================")
-        player.resetBetweenCombats()
         if isFleeing:
             print("You successfully flew ")
+            player.resetBetweenCombats()
             isFleeing = False
         elif player.health >= 0:
+            player.resetBetweenCombats()
             print("You won !!")
             player.gainXp(ennemy)
             player.gainGold(ennemy)
             print(f"Your new xp is {player.xp}/{calculateXpLevels(player.level)}")
             if player.xp >= calculateXpLevels(player.level):
                 print(f"LEVEL UP : {player.xp} / {calculateXpLevels(player.level)} xp")
+                flush_input()
+                input("Press enter to continue...\n")
+                clearTerminal()
                 player.levelUp()
+                input("\nPress enter to go to the shop")
         else:
             print("You lost !")
-        input("\nPress enter to go to the shop")
+            input("\nPress enter to go to the meta menu")

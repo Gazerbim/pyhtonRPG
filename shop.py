@@ -95,6 +95,7 @@ def handleShop(player: Player):
         widget.add_choice("Buy Armors")
         widget.add_choice("Buy Potions")
         widget.add_choice("Quit the shop")
+        widget.add_choice("Back to the main menu")
         widget.setPrefix(prefix)
         widget.run()
         choice = widget.cursor
@@ -105,4 +106,7 @@ def handleShop(player: Player):
         elif choice == 2:
             buyPotion(player)
         elif choice == 3:
+            break
+        elif choice == 4:
+            player.quit = True
             break

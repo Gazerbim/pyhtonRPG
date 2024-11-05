@@ -4,6 +4,18 @@ import character
 import shutil
 
 
+def list_files_in_directory(directory):
+    # Vérifie si le répertoire existe
+    if not os.path.exists(directory):
+        print(f"The repertory '{directory}' does not exist.")
+        return []
+
+    # Récupère les noms de fichiers dans le répertoire
+    files = [file for file in os.listdir(directory) if os.path.isfile(os.path.join(directory, file))]
+
+    return files
+
+
 def flush_input():
     try:
         while msvcrt.kbhit():

@@ -118,7 +118,7 @@ class Ennemy:
         spellsName = []
         for spell in self.spells:
             spellsName.append(spell.name)
-        return f"This enemy's perks are : Level = {self.level} | Health = {self.health}/{self.maxHealth} | Mana = {self.mana}/{self.maxMana} | Attack = {self.maxAttack}+({self.atk-self.maxAttack}) | Strength = {self.maxStrength}+({self.strength-self.maxStrength}).\nHe owns a {self.armor.name}, a {self.weapon.name}\nHe possesses {self.potions['Health']} health potions and {self.potions['Mana']} mana potions.\nHis spell are : {spellsName}\n"
+        return f"This enemy's perks are : Level = {self.level} | Health = {self.health}/{self.maxHealth} | Mana = {self.mana}/{self.maxMana} | Attack = {self.atk}+({self.atk-self.maxAttack}) | Strength = {self.strength}+({self.strength-self.maxStrength}).\nHe owns a {self.armor.name}, a {self.weapon.name}\nHe possesses {self.potions['Health']} health potions and {self.potions['Mana']} mana potions.\nHis spell are : {spellsName}\n"
 
 
 class Player:
@@ -149,6 +149,8 @@ class Player:
         self.strength = strength
 
         self.gold = gold
+
+        self.quit = False
 
         self.initializePlayer()
 
@@ -257,8 +259,8 @@ class Player:
             self.flee += 1
             self.maxFlee += 1
         elif choice == 3:
-            self.strength += 1
-            self.maxStrength += 1
+            self.strength += 2
+            self.maxStrength += 2
         self.maxHealth += randint(10, 30)
         self.maxMana += randint(10, 30)
         self.health = self.maxHealth
@@ -305,7 +307,7 @@ class Player:
         return string + "\n"
 
     def __str__(self):
-        return f"{self.pseudo} : Health = {self.health}/{self.maxHealth} | Mana = {self.mana}/{self.maxMana} | Xp = {self.xp} |Attack = {self.maxAttack}+({self.atk-self.maxAttack}) | Flee = {self.maxFlee}+({self.flee-self.maxFlee}) | Strength = {self.maxStrength}+({self.strength-self.maxStrength}).\nYou own a {self.armor.name} ({self.armor.durability}/{self.armor.maxDurability} durability), a {self.weapon.name} ({self.weapon.durability}/{self.weapon.maxDurability} durability)\nYou possess {self.potions['Health']} health potions and {self.potions['Mana']} mana potions.\n"
+        return f"{self.pseudo} : Health = {self.health}/{self.maxHealth} | Mana = {self.mana}/{self.maxMana} | Xp = {self.xp} |Attack = {self.atk}+({self.atk-self.maxAttack}) | Flee = {self.flee}+({self.flee-self.maxFlee}) | Strength = {self.strength}+({self.strength-self.maxStrength}).\nYou own a {self.armor.name} ({self.armor.durability}/{self.armor.maxDurability} durability), a {self.weapon.name} ({self.weapon.durability}/{self.weapon.maxDurability} durability)\nYou possess {self.potions['Health']} health potions and {self.potions['Mana']} mana potions.\n"
 
 
 class Spell:
@@ -518,7 +520,7 @@ infernoBlast = Spell("Inferno Blast", "Deals 100 damage to the enemy but costs 3
 infernoBlast.eDamage = -100  # Deals 100 damage to the enemy
 infernoBlast.damage = -30  # Reduces player's health by 30 points
 
-precision = Spell("Precision", "Slightly increase your attack", 40, "Buff")
+precision = Spell("Precision", "Slightly increase attack", 40, "Buff")
 precision.attackAttribute = 20
 precision.isAttackProp = True
 """==========Spell Array============"""
