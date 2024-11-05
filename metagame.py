@@ -6,6 +6,7 @@ from combat import *
 import pickle
 import os
 import time
+from random import randint
 
 
 class Metagame:
@@ -14,6 +15,18 @@ class Metagame:
         self.player = None
         self.isQuitting = False
         self.isPlayerLoaded = False
+        self.pseudo = ""
+
+        # base attributes for the beginning of a run
+        self.baseHealth = 100
+        self.baseMana = 100
+        self.baseAttack = 10
+        self.baseStrength = 1
+        self.baseFlee = 1
+        self.baseGold = 50
+        self.numberBaseSpell = 0
+
+        self.xpGained = 0
 
     def resetEquipement(self):
         for weapon in weapons:
@@ -23,12 +36,107 @@ class Metagame:
 
     def startNewGame(self):
         clearTerminal()
-        self.player = Player(100, 100, 10, 1, 0, 1)
+        self.pseudo = input("What is your nickname ? /!\ If you take a nickname that is already used it will delete the other player's save !: ")
+        clearTerminal()
+        self.player = Player(100, 100, 10, 1, 50, 1, self.pseudo)
         self.resetEquipement()
         self.isPlayerLoaded = True
+        self.baseHealth = 100
+        self.baseMana = 100
+        self.baseAttack = 10
+        self.baseStrength = 1
+        self.baseFlee = 1
+        self.baseGold = 50
+        self.numberBaseSpell = 0
+        self.xpGained = 0
+        self.metapoints = 0
+
+    def increaseBaseAttributes(self):
+        while True:
+            clearTerminal()
+            widget = ChooseWidget()
+            widget.setPrefix(f"Choose the attributes to increase.\nYou have {self.metapoints} MeP.")
+            widget.add_choice(f"Increase base health ({self.baseHealth}) : 50 MeP")
+            widget.add_choice(f"Increase base mana ({self.baseMana}) : 50 MeP")
+            widget.add_choice(f"Increase base attack ({self.baseAttack}) : {500+250*(self.baseAttack-10)} MeP")
+            widget.add_choice(f"Increase base flee ({self.baseFlee}) : {500+250*(self.baseFlee-1)} MeP")
+            widget.add_choice(f"Increase base strength ({self.baseStrength}) : {250+100*(self.baseStrength-1)} MeP")
+            widget.add_choice("Return to the meta-menu")
+            choice = widget.run()
+            if choice == 1 and self.metapoints >= 50:
+                self.baseHealth += 1
+                self.metapoints -= 50
+            elif choice == 2 and self.metapoints >= 50:
+                self.baseMana += 1
+                self.metapoints -= 50
+            elif choice == 3 and self.metapoints >= 500+250*(self.baseAttack-10):
+                self.metapoints -= 500+250*(self.baseAttack-10)
+                self.baseHealth += 1
+            elif choice == 4 and self.metapoints >= 500+250*(self.baseFlee-1):
+                self.metapoints -= 500+250*(self.baseFlee-1)
+                self.baseFlee += 1
+            elif choice == 5 and self.metapoints >= 250+100*(self.baseStrength-1):
+                self.metapoints -= 250+100*(self.baseStrength-1)
+                self.baseStrength += 1
+            elif choice == 6:
+                break
+
+    def increaseStartingMoney(self):
+        while True:
+            clearTerminal()
+            widget = ChooseWidget()
+            widget.setPrefix(f"Choose what to increase.\nYou have {self.metapoints} MeP.")
+            widget.add_choice(f"Increase base money by 10 ({self.baseGold}) : {self.baseGold*10} MeP")
+            widget.add_choice(f"Increase base number of spells (max : {len(playerTierSpells[1])}) ({self.numberBaseSpell}) : {1000*self.numberBaseSpell} MeP")
+            widget.add_choice("Return to the meta-menu")
+            choice = widget.run()
+            if choice == 1 and self.metapoints >= self.baseGold*10:
+                self.metapoints -= self.baseGold*10
+                self.baseGold += 10
+            elif choice == 2 and self.metapoints >= 1000*self.numberBaseSpell and self.numberBaseSpell < len(playerTierSpells[1]):
+                self.metapoints -= 1000*self.numberBaseSpell
+                self.numberBaseSpell += 1
+            elif choice == 3:
+                break
+
+    def createPlayer(self):
+        self.player = Player(self.baseHealth, self.baseMana, self.baseAttack, self.baseFlee, self.baseGold, self.baseStrength, self.pseudo)
+        tabInd = []
+        while len(tabInd) < self.numberBaseSpell:
+            ind = randint(0, len(playerTierSpells[1])-1)
+            if not (ind in tabInd):
+                tabInd.append(ind)
+        for i in tabInd:
+            self.player.spells.append(playerTierSpells[1][i])
+
+    def fullGame(self):
+        while True:
+            self.runGame()
+            if self.player.quit:
+                break
+            self.metaMenu()
+            self.createPlayer()
 
     def metaMenu(self):
-        pass
+        while True:
+            clearTerminal()
+            widget = ChooseWidget()
+            widget.add_choice("Increase base attributes")
+            widget.add_choice("Increase starting money or number of starting spells")
+            widget.add_choice("Create spells [NOT WORKING]")
+            widget.add_choice("Start a new run")
+            widget.setPrefix(f"Congratulations! You finished a run!\nThis is the meta-menu, where you can buy persistent upgrades for your character.\nYou currently have {self.metapoints} metapoints.")
+            choice = widget.run()-1
+            if choice == 0:
+                self.increaseBaseAttributes()
+            if choice == 1:
+                self.increaseStartingMoney()
+            if choice == 2:
+                # self.createSpell()
+                pass
+            if choice == 3:
+                break
+
 
     def runGame(self):
         while self.player.health > 0 and not self.player.quit:
@@ -36,12 +144,14 @@ class Metagame:
             if self.player.quit:
                 break
             combat = Combat()
-            combat.combat(self.player)
+            self.xpGained += combat.combat(self.player)
         if not self.player.quit:
+            self.metapoints += self.xpGained
             self.endRun()
 
-    def endRun(self):
-        pass
+    def endRun(self):  # all the stuff that will prepare another game
+        self.xpGained = 0
+
 
     def saveGame(self):
         self.player.quit = False
@@ -49,11 +159,20 @@ class Metagame:
             os.makedirs("saves")
 
         save_data = {
+            'baseGold': self.baseGold,
+            'baseFlee': self.baseFlee,
+            'baseMana': self.baseMana,
+            'baseAttack': self.baseAttack,
+            'baseHealth': self.baseHealth,
+            'baseStrength': self.baseStrength,
+            'numberBaseSpell': self.numberBaseSpell,
+            'xpGained': self.xpGained,
             'metapoints': self.metapoints,
-            'player': self.player
+            'player': self.player,
+            'pseudo': self.pseudo
         }
 
-        with open(f"saves/{self.player.pseudo}_level_{self.player.level}.pkl", "wb") as save_file:
+        with open(f"saves/{self.player.pseudo}.pkl", "wb") as save_file:
             pickle.dump(save_data, save_file)
         print(f"Game saved as {self.player.pseudo}_level_{self.player.level}")
 
@@ -72,6 +191,15 @@ class Metagame:
                 save_data = pickle.load(save_file)
             self.metapoints = save_data['metapoints']
             self.player = save_data['player']
+            self.baseGold = save_data['baseGold']
+            self.baseFlee = save_data['baseFlee']
+            self.baseMana = save_data['baseMana']
+            self.baseAttack = save_data['baseAttack']
+            self.baseHealth = save_data['baseHealth']
+            self.baseStrength = save_data['baseStrength']
+            self.numberBaseSpell = save_data['numberBaseSpell']
+            self.xpGained = save_data['xpGained']
+            self.pseudo = save_data['pseudo']
             print(self.player.pseudo)
             print(f"Game loaded from {lst[choice]}")
             flush_input()
@@ -103,19 +231,31 @@ class Metagame:
         while not self.isQuitting:
             choice = self.mainMenu()
             flush_input()
-            if choice == 1 and self.isPlayerLoaded:
-                self.player.quit = False
-                self.runGame()
-            elif choice == 2 and self.isPlayerLoaded:
-                self.saveGame()
-            elif choice == 1:
-                self.startNewGame()
-                self.runGame()
-            elif choice == 2:
-                self.loadGame()
-                self.runGame()
-            elif choice == 3:
-                self.tuto()
-            elif choice == 4:
-                self.isQuitting = True
-                break
+            if self.isPlayerLoaded:
+                if choice == 1:
+                    self.player.quit = False
+                    self.fullGame()
+                elif choice == 2:
+                    self.saveGame()
+                elif choice == 3:
+                    self.startNewGame()
+                    self.fullGame()
+                elif choice == 4:
+                    self.loadGame()
+                    self.fullGame()
+                elif choice == 5:
+                    self.tuto()
+                elif choice == 6:
+                    self.isQuitting = True
+                    exit()
+            else:
+                if choice == 1:
+                    self.startNewGame()
+                    self.fullGame()
+                elif choice == 2:
+                    self.loadGame()
+                    self.fullGame()
+                elif choice == 3:
+                    self.tuto()
+                elif choice == 4:
+                    self.isQuitting = True

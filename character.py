@@ -122,8 +122,8 @@ class Ennemy:
 
 
 class Player:
-    def __init__(self, health, mana, atk, flee, gold, strength):
-        self.pseudo = ""
+    def __init__(self, health, mana, atk, flee, gold, strength, pseudo):
+        self.pseudo = pseudo
 
         self.maxHealth = health
         self.health = health
@@ -131,8 +131,8 @@ class Player:
         self.maxMana = mana
         self.mana = mana
 
-        self.armor = None
-        self.weapon = None
+        self.weapon = stick
+        self.armor = tunic
         self.xp = 0
         self.potions = {"Health": 0, "Mana": 0}
         self.spells = []
@@ -151,14 +151,6 @@ class Player:
         self.gold = gold
 
         self.quit = False
-
-        self.initializePlayer()
-
-    def initializePlayer(self):
-        self.pseudo = input("What is your nickname ? : ")
-        self.weapon = stick
-        self.armor = tunic
-        self.gold = 50
 
     def resetBetweenCombats(self):
         self.atk = self.maxAttack
@@ -214,7 +206,7 @@ class Player:
             for spell in tabSpells:
                 widget.add_choice(spell.name)
             widget.add_choice("Take no spell")
-            string = "Choose a spell to have : \nYour spells : ["
+            string = "Choose a spell to learn : \nYour spells : ["
             for s in self.spells:
                 string += s.name + ", "
             string += "]\n"
@@ -245,9 +237,9 @@ class Player:
     def levelUp(self):  # Apply the effects of a level up
         self.level += 1
         widget = ChooseWidget()
-        widget.add_choice("Attack")
-        widget.add_choice("Flee")
-        widget.add_choice("Strength")
+        widget.add_choice(f"Attack {self.maxAttack} : +1")
+        widget.add_choice(f"Flee {self.maxFlee} : +1")
+        widget.add_choice(f"Strength {self.maxStrength} : +2")
         widget.setPrefix("Choose the ability you want to increase : \n")
         choice = widget.run()
         clearTerminal()
@@ -274,6 +266,7 @@ class Player:
         xpGained = ennemy.level*20 + randint(-5, 5) * ennemy.level + randint(0, 10)
         self.xp += xpGained
         print(f"You gained {xpGained} xp.")
+        return xpGained
 
     def gainGold(self, ennemy: Ennemy):
         goldGained = ennemy.level * 20 + randint(-5, 5) * ennemy.level + randint(0, 10)

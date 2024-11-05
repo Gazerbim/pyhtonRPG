@@ -103,7 +103,7 @@ class Combat:
             for spell in player.spells:
                 widget.add_choice(spell.name)
             widget.add_choice("Go back to the action menu")
-            widget.setPrefix("Select a spell\n")
+            widget.setPrefix(f"Select a spell\nYou have {player.mana} mana.")
             choice = widget.run() - 1
             if choice == len(player.spells):
                 self.done = False
@@ -152,10 +152,10 @@ class Combat:
                 widget = ChooseWidget()
                 widget.add_choice("Attack")
                 widget.add_choice("Drink a potion")
-                widget.add_choice("Flee the fight")
                 widget.add_choice("Launch a spell")
                 widget.add_choice("View Ennemy stats")
                 widget.add_choice("View your stats")
+                widget.add_choice("Flee the fight")
                 widget.setPrefix(self.returnRoundText())
                 choice = widget.run()
                 flush_input()
@@ -185,7 +185,7 @@ class Combat:
                     if not self.done:
                         continue
 
-                elif choice == 3:
+                elif choice == 6:
                     if randint(1, 20) <= player.flee:
                         isFleeing = True
                     else:
@@ -193,7 +193,7 @@ class Combat:
                         self.roundText.append("You didn't manage to flee ! :(")
                     self.done = True
 
-                elif choice == 4:
+                elif choice == 3:
                     self.done = True
                     clearTerminal()
                     launchedSpell = self.chooseSpellToLaunch(player)
@@ -213,13 +213,13 @@ class Combat:
                         flush_input()
                         continue
 
-                elif choice == 5:
+                elif choice == 4:
                     print("")
                     self.roundText.append("")
                     print(ennemy)
                     self.roundText.append(ennemy.__str__())
 
-                elif choice == 6:
+                elif choice == 5:
                     print("")
                     self.roundText.append("")
                     print(player)
@@ -335,6 +335,7 @@ class Combat:
                 input("\nPress enter to start a new turn")
 
     def combat(self, player: Player):
+        xpGained = 0
         flush_input()
         global isFleeing
         print("The fight will start !!!")
@@ -355,7 +356,7 @@ class Combat:
         elif player.health >= 0:
             player.resetBetweenCombats()
             print("You won !!")
-            player.gainXp(ennemy)
+            xpGained = player.gainXp(ennemy)
             player.gainGold(ennemy)
             print(f"Your new xp is {player.xp}/{calculateXpLevels(player.level)}")
             if player.xp >= calculateXpLevels(player.level):
@@ -368,3 +369,4 @@ class Combat:
         else:
             print("You lost !")
             input("\nPress enter to go to the meta menu")
+        return xpGained

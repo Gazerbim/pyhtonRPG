@@ -94,7 +94,7 @@ def handleShop(player: Player):
         widget.add_choice("Buy Weapons")
         widget.add_choice("Buy Armors")
         widget.add_choice("Buy Potions")
-        widget.add_choice("Quit the shop")
+        widget.add_choice("Go to combat")
         widget.add_choice("Back to the main menu")
         widget.setPrefix(prefix)
         widget.run()
