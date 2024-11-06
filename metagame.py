@@ -24,7 +24,7 @@ class Metagame:
         self.baseStrength = 1
         self.baseFlee = 1
         self.baseGold = 50
-        self.numberBaseSpell = 0
+        self.numberBaseSpell = 1
 
         self.xpGained = 0
 
@@ -55,28 +55,28 @@ class Metagame:
         while True:
             clearTerminal()
             widget = ChooseWidget()
-            widget.setPrefix(f"Choose the attributes to increase.\nYou have {self.metapoints} MeP.")
-            widget.add_choice(f"Increase base health ({self.baseHealth}) : 50 MeP")
-            widget.add_choice(f"Increase base mana ({self.baseMana}) : 50 MeP")
-            widget.add_choice(f"Increase base attack ({self.baseAttack}) : {500+250*(self.baseAttack-10)} MeP")
-            widget.add_choice(f"Increase base flee ({self.baseFlee}) : {500+250*(self.baseFlee-1)} MeP")
-            widget.add_choice(f"Increase base strength ({self.baseStrength}) : {250+100*(self.baseStrength-1)} MeP")
+            widget.setPrefix(f"Choose the attributes to increase.\nYou have {self.metapoints} MeP.\n")
+            widget.add_choice(f"Increase base health ({self.baseHealth}) : 100 MeP")
+            widget.add_choice(f"Increase base mana ({self.baseMana}) : 100 MeP")
+            widget.add_choice(f"Increase base attack ({self.baseAttack}) : {200*(self.baseAttack-9)} MeP")
+            widget.add_choice(f"Increase base flee ({self.baseFlee}) : {200*(self.baseFlee)} MeP")
+            widget.add_choice(f"Increase base strength ({self.baseStrength}) : {100*(self.baseStrength)} MeP")
             widget.add_choice("Return to the meta-menu")
             choice = widget.run()
-            if choice == 1 and self.metapoints >= 50:
-                self.baseHealth += 1
-                self.metapoints -= 50
-            elif choice == 2 and self.metapoints >= 50:
-                self.baseMana += 1
-                self.metapoints -= 50
-            elif choice == 3 and self.metapoints >= 500+250*(self.baseAttack-10):
-                self.metapoints -= 500+250*(self.baseAttack-10)
-                self.baseHealth += 1
-            elif choice == 4 and self.metapoints >= 500+250*(self.baseFlee-1):
-                self.metapoints -= 500+250*(self.baseFlee-1)
+            if choice == 1 and self.metapoints >= 100:
+                self.baseHealth += 5
+                self.metapoints -= 100
+            elif choice == 2 and self.metapoints >= 100:
+                self.baseMana += 5
+                self.metapoints -= 100
+            elif choice == 3 and self.metapoints >= 200*(self.baseAttack-9):
+                self.metapoints -= 200*(self.baseAttack-9)
+                self.baseAttack += 1
+            elif choice == 4 and self.metapoints >= 200*(self.baseFlee):
+                self.metapoints -= 200*(self.baseFlee)
                 self.baseFlee += 1
-            elif choice == 5 and self.metapoints >= 250+100*(self.baseStrength-1):
-                self.metapoints -= 250+100*(self.baseStrength-1)
+            elif choice == 5 and self.metapoints >= 100*(self.baseStrength):
+                self.metapoints -= 100*(self.baseStrength)
                 self.baseStrength += 1
             elif choice == 6:
                 break
@@ -85,22 +85,24 @@ class Metagame:
         while True:
             clearTerminal()
             widget = ChooseWidget()
-            widget.setPrefix(f"Choose what to increase.\nYou have {self.metapoints} MeP.")
-            widget.add_choice(f"Increase base money by 10 ({self.baseGold}) : {self.baseGold*10} MeP")
-            widget.add_choice(f"Increase base number of spells (max : {len(playerTierSpells[1])}) ({self.numberBaseSpell}) : {1000*self.numberBaseSpell} MeP")
+            widget.setPrefix(f"Choose what to increase.\nYou have {self.metapoints} MeP.\n")
+            widget.add_choice(f"Increase base money by 10 ({self.baseGold}) : {self.baseGold*2} MeP")
+            widget.add_choice(f"Increase base number of spells (max : {len(playerTierSpells[1])}) ({self.numberBaseSpell}) : {500*self.numberBaseSpell} MeP")
             widget.add_choice("Return to the meta-menu")
             choice = widget.run()
-            if choice == 1 and self.metapoints >= self.baseGold*10:
-                self.metapoints -= self.baseGold*10
+            if choice == 1 and self.metapoints >= self.baseGold*2:
+                self.metapoints -= self.baseGold*2
                 self.baseGold += 10
-            elif choice == 2 and self.metapoints >= 1000*self.numberBaseSpell and self.numberBaseSpell < len(playerTierSpells[1]):
-                self.metapoints -= 1000*self.numberBaseSpell
+            elif choice == 2 and self.metapoints >= 500*self.numberBaseSpell and self.numberBaseSpell < len(playerTierSpells[1]):
+                self.metapoints -= 500*self.numberBaseSpell
                 self.numberBaseSpell += 1
             elif choice == 3:
                 break
 
     def createPlayer(self):
         self.player = Player(self.baseHealth, self.baseMana, self.baseAttack, self.baseFlee, self.baseGold, self.baseStrength, self.pseudo)
+        self.player.armor.durability = self.player.armor.maxDurability
+        self.player.weapon.durability = self.player.weapon.maxDurability
         tabInd = []
         while len(tabInd) < self.numberBaseSpell:
             ind = randint(0, len(playerTierSpells[1])-1)
@@ -125,7 +127,7 @@ class Metagame:
             widget.add_choice("Increase starting money or number of starting spells")
             widget.add_choice("Create spells [NOT WORKING]")
             widget.add_choice("Start a new run")
-            widget.setPrefix(f"Congratulations! You finished a run!\nThis is the meta-menu, where you can buy persistent upgrades for your character.\nYou currently have {self.metapoints} metapoints.")
+            widget.setPrefix(f"Congratulations! You finished a run!\nThis is the meta-menu, where you can buy persistent upgrades for your character.\nYou currently have {self.metapoints} metapoints.\n")
             choice = widget.run()-1
             if choice == 0:
                 self.increaseBaseAttributes()

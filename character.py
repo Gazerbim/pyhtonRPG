@@ -507,7 +507,7 @@ powerSurge.isDamageProp = True
 
 vampireBite = Spell("Vampire Bite", "Drain health from the ennemy", 50, "Heal")
 vampireBite.damage = 20
-vampireBite.eDamage = 20
+vampireBite.eDamage = -20
 
 infernoBlast = Spell("Inferno Blast", "Deals 100 damage to the enemy but costs 30 health", 120, "Debuff")
 infernoBlast.eDamage = -100  # Deals 100 damage to the enemy
