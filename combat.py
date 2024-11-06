@@ -21,7 +21,7 @@ def chooseWeapon(player: Player):
         dist = abs(weapons[w].damage - player.maxHealth/4)
         if dist < weaponChoosed[1]:
             weaponChoosed = (w, dist)
-    return max(weaponChoosed[0]-1, 0)
+    return max(weaponChoosed[0], 0)
     # return 0  # standard option
 
 
@@ -32,7 +32,7 @@ def chooseArmor(eHealth):
         dist = abs(armors[w].protection - eHealth / 5)
         if dist < armorChoosed[1]:
             armorChoosed = (w, dist)
-    return max(armorChoosed[0]-1, 0)
+    return max(armorChoosed[0], 0)
     # return 0  # standard option
 
 
@@ -102,6 +102,7 @@ class Combat:
             widget = ChooseWidget()
             for spell in player.spells:
                 widget.add_choice(spell.name)
+            widget.set_flag("AllowSeveralSameOption", True)
             widget.add_choice("Go back to the action menu")
             widget.setPrefix(f"Select a spell\nYou have {player.mana} mana.")
             choice = widget.run() - 1

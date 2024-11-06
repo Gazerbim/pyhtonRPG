@@ -185,8 +185,12 @@ class Metagame:
         widget = ChooseWidget()
         for n in lst:
             widget.add_choice(n)
+        widget.add_choice("Quit to main menu")
+        widget.setPrefix(f"Choose a save to load.\nNumber of saves : {len(lst)}\n")
         choice = widget.run()-1
         flush_input()
+        if choice == len(lst):
+            return False
         try:
             # Charge l'état de la partie
             with open(f"saves/{lst[choice]}", "rb") as save_file:
@@ -207,8 +211,10 @@ class Metagame:
             flush_input()
             input("Press enter to start...\n")
             self.isPlayerLoaded = True
+            return True
         except FileNotFoundError:
             print("Save file not found.")
+            return False
 
     def mainMenu(self):
         clearTerminal()
@@ -224,6 +230,7 @@ class Metagame:
         widget.add_choice("Load Game")
         widget.add_choice("Tutorial")
         widget.add_choice("Quit Game")
+        widget.setPrefix("================MAIN MENU=================\n")
         return widget.run()
 
     def tuto(self):
@@ -243,8 +250,9 @@ class Metagame:
                     self.startNewGame()
                     self.fullGame()
                 elif choice == 4:
-                    self.loadGame()
-                    self.fullGame()
+                    isGameLoaded = self.loadGame()
+                    if isGameLoaded:
+                        self.fullGame()
                 elif choice == 5:
                     self.tuto()
                 elif choice == 6:
@@ -255,8 +263,10 @@ class Metagame:
                     self.startNewGame()
                     self.fullGame()
                 elif choice == 2:
-                    self.loadGame()
-                    self.fullGame()
+                    isGameLoaded = self.loadGame()
+                    print(isGameLoaded)
+                    if isGameLoaded:
+                        self.fullGame()
                 elif choice == 3:
                     self.tuto()
                 elif choice == 4:
