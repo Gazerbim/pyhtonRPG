@@ -269,7 +269,7 @@ class Player:
         return xpGained
 
     def gainGold(self, ennemy: Ennemy):
-        goldGained = ennemy.level * 20 + randint(-5, 5) * ennemy.level + randint(0, 10)
+        goldGained = ennemy.level * 25 + randint(0, 5) * ennemy.level + randint(0, 50)
         self.gold += goldGained
         print(f"You gained {goldGained} gold.")
 
