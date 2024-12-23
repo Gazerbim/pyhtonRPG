@@ -113,7 +113,7 @@ class BigTitle:
 	def centerFont(self, text, separator="\t"):
 		alphabet = string.ascii_uppercase + " "
 		out = ""
-		for i in range(0, int(shutil.get_terminal_size().lines / 2 - 4)):
+		for i in range(0, 1):
 			out += "\n"
 
 		for i in range(0, 5):
