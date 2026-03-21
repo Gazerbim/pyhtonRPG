@@ -9,35 +9,35 @@ isFleeing = False
 
 
 def calculateEnnemyHealthOrMana(level):
-    health = max(30 + (level**2)*5 + randint(-10, 10), 10)
+    health = max((level**2)*5 + randint(-10, 10), 10)
     return health
 
 
 def chooseWeapon(player: Player):
-    dist = abs(weapons[0].damage - player.maxHealth/3)
+    dist = abs(weapons[0].damage - player.maxHealth/4)
     weaponChoosed = (0, dist)
     for w in range(len(armors)):
         # print(f"{weapons[w].damage} - {player.maxHealth/5}")
-        dist = abs(weapons[w].damage - player.maxHealth/3)
+        dist = abs(weapons[w].damage - player.maxHealth/4)
         if dist < weaponChoosed[1]:
             weaponChoosed = (w, dist)
-    return max(weaponChoosed[0], 0)
+    return max(weaponChoosed[0]-1, 0)
     # return 0  # standard option
 
 
-def chooseArmor(player: Player):
-    dist = abs(armors[0].protection - player.weapon.damage / 2)
+def chooseArmor(eHealth):
+    dist = abs(armors[0].protection - eHealth / 5)
     armorChoosed = (0, dist)
     for w in range(len(armors)):
-        dist = abs(armors[w].protection - player.weapon.damage / 2)
+        dist = abs(armors[w].protection - eHealth / 5)
         if dist < armorChoosed[1]:
             armorChoosed = (w, dist)
-    return max(armorChoosed[0]+randint(0,2), 0)
+    return max(armorChoosed[0]-1, 0)
     # return 0  # standard option
 
 
 def chooseNumberPotions(level):
-    i = randint(0, level+3) // 3
+    i = randint(0, level) // 3
     return i
 
 
@@ -66,14 +66,14 @@ def chooseSpells(player: Player):
 
 
 def generateEnnemy(player: Player):
-    eLevel = max(randint(player.level-2, player.level+2),1)
+    eLevel = randint(1, player.level+2)
     eAttack = 10 + eLevel - randint(0, eLevel)
     eDodge = eLevel - eAttack + 20
     eHealth = calculateEnnemyHealthOrMana(eLevel)
     eMana = calculateEnnemyHealthOrMana(eLevel)
     eHPotion = chooseNumberPotions(eLevel)
     eMPotion = chooseNumberPotions(eLevel)
-    eArmor = earmors[chooseArmor(player)]
+    eArmor = earmors[chooseArmor(eHealth)]
     eArmor.durability = eArmor.maxDurability
     eWeapon = eweapons[chooseWeapon(player)]
     eWeapon.durability = eWeapon.maxDurability
@@ -102,7 +102,6 @@ class Combat:
             widget = ChooseWidget()
             for spell in player.spells:
                 widget.add_choice(spell.name)
-            widget.set_flag("AllowSeveralSameOption", True)
             widget.add_choice("Go back to the action menu")
             widget.setPrefix(f"Select a spell\nYou have {player.mana} mana.")
             choice = widget.run() - 1
@@ -355,7 +354,6 @@ class Combat:
             player.resetBetweenCombats()
             isFleeing = False
         elif player.health >= 0:
-            flush_input()
             player.resetBetweenCombats()
             print("You won !!")
             xpGained = player.gainXp(ennemy)

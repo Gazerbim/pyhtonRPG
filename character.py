@@ -269,7 +269,7 @@ class Player:
         return xpGained
 
     def gainGold(self, ennemy: Ennemy):
-        goldGained = ennemy.level * 25 + randint(0, 5) * ennemy.level + randint(0, 50)
+        goldGained = ennemy.level * 20 + randint(-5, 5) * ennemy.level + randint(0, 10)
         self.gold += goldGained
         print(f"You gained {goldGained} gold.")
 
@@ -474,7 +474,7 @@ iceBarrier.eDamage = -20  # Inflige 30 dégâts à l'ennemi
 iceBarrier.eFleeAttribute = -20
 iceBarrier.isEFleeProp = True
 
-cripple = Spell("Cripple", "Reduces enemy's attack and strength by 15%", 45, "Debuff")
+cripple = Spell("Cripple", "Reduces enemy's attack and strength by 30%", 45, "Debuff")
 cripple.eAttackAttribute = -30
 cripple.isEAttackProp = True
 cripple.eStrengthAttribute = -30
@@ -514,8 +514,7 @@ infernoBlast.eDamage = -100  # Deals 100 damage to the enemy
 infernoBlast.damage = -30  # Reduces player's health by 30 points
 
 precision = Spell("Precision", "Slightly increase attack", 40, "Buff")
-precision.attackAttribute = 20
-precision.isAttackProp = True
+precision.attackAttribute = 4
 """==========Spell Array============"""
 tierSpells = {1: [heal, reinforcement, iceBarrier, cripple, mightyBlow, overload, vampireBite, precision], 2: [betterHeal, weakness2, berserk, flameStrike, sacrifice, soulDrain], 3: [superHeal, infernoBlast]}  # Spells that the ennemy can use
 playerTierSpells = {1: [heal, reinforcement, cripple, mightyBlow, overload, vampireBite, precision], 2: [betterHeal, weakness2, berserk, revitalization, flameStrike, sacrifice, soulDrain], 3: [superHeal, oneHpSpell, infernoBlast]}  # Spells that the player can use

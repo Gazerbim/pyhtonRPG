@@ -1,6 +1,9 @@
 from metagame import *
 
 
+
+
+
 def main():
     game = Metagame()
     game.launch()
