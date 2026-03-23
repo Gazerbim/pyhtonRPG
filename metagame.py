@@ -112,7 +112,7 @@ class Metagame:
     def fullGame(self):
         while True:
             self.runGame()
-            if self.player.quit:
+            if self.player.quit or self.player.level >= 30:
                 break
             self.metaMenu()
             self.createPlayer()
@@ -146,6 +146,9 @@ class Metagame:
                 break
             combat = Combat()
             self.xpGained += combat.combat(self.player)
+            if self.player.level >= 30:
+                break
+
         if not self.player.quit:
             self.metapoints += self.xpGained
             self.endRun()
@@ -304,7 +307,7 @@ class Metagame:
 
 
     def launch(self):
-        while not self.isQuitting:
+        while not self.isQuitting or self.player.level < 30:
             choice = self.mainMenu()
             flush_input()
             if self.isPlayerLoaded:
@@ -335,3 +338,7 @@ class Metagame:
                     self.magicWikiList()
                 elif choice == 4:
                     self.isQuitting = True
+        if self.player.level >= 30:
+            print("Congratulations ! You reached the maximum level !")
+            flush_input()
+            input("\nPress enter to exit the game")

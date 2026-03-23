@@ -83,11 +83,11 @@ class Ennemy:
     def chooseStrategy(self):
         while True:
             if self.health/self.maxHealth < 0.1 and self.potions["Health"] > 0:
-                return 2  # drink a health potion
+                return 2  # drink a health potion if health is under 10%
             elif self.health/self.maxHealth < 0.1 and self.haveSpell("Heal") and self.canUseOneSpell(self.returnSpells("Heal")):
-                return 6  # use a healing spell
+                return 6  # use a healing spell if health is under 10%
             elif (not self.canUseOneSpell(self.spells) or self.mana/self.maxMana < 0.2) and self.potions["Mana"] > 0:
-                return 3  # drink a mana potion
+                return 3  # drink a mana potion if mana is under 20% or if the ennemy can't use any spell
             else:
                 choice = randint(1, 5)
                 if choice == 1 or choice == 2 or choice == 3:
@@ -195,8 +195,15 @@ class Player:
             ind1 = randint(0, len(playerTierSpells[1]) - 1)
             ind2 = randint(0, len(playerTierSpells[2]) - 1)
             ind3 = randint(0, len(playerTierSpells[3]) - 1)
-            tabSpell = [playerTierSpells[1][ind1], playerTierSpells[2][ind2], playerTierSpells[2][ind3]]
+            tabSpell = [playerTierSpells[1][ind1], playerTierSpells[2][ind2], playerTierSpells[3][ind3]]
         return tabSpell
+    
+    def haveSpell(self, name):
+        for spell in self.spells:
+            if spell.name == name:
+                return True
+        return False
+
 
     def chooseSpell(self, tabSpells):
         while True:
@@ -226,7 +233,7 @@ class Player:
             if choice2 == 2:
                 continue
             else:
-                if tabSpells[choice] in self.spells:
+                if self.haveSpell(tabSpells[choice].name):
                     print("You already have this spell !")
                     input("Press Enter to continue...")
                     continue
@@ -443,7 +450,7 @@ weakness1.eStrengthAttribute = 20
 weakness1.isEStrengthProp = True
 
 weakness2 = Spell("Heavy Weakness", "Reduce the ennemy's strength by 50%", 100, "Debuff")
-weakness2.eStrengthAttribute = 50
+weakness2.eStrengthAttribute = -50
 weakness2.isEStrengthProp = True
 
 reinforcement = Spell("Reinforcement", "Increase strength by 5", 30, "Buff")

@@ -23,13 +23,13 @@ ironSword = Weapon(5, 100, 20, 0, "Iron Sword")
 diamondSword = Weapon(20, 1000, 100, 0, "Diamond Sword")
 energySword = Weapon(50, 5000, 500, 0, "Energy Sword")
 masterSword = Weapon(100, 20000, 1000, 0, "Master Sword")
-darkSword = Weapon(200, 50000, 1500, 0, "Dark Sword")
 woodenSword = Weapon(3, 50, 5, 0, "Wooden Sword")
 bronzeSword = Weapon(8, 200, 50, 0, "Bronze Sword")
 silverSword = Weapon(15, 600, 75, 0, "Silver Sword")
 platinumSword = Weapon(30, 1500, 300, 0, "Platinum Sword")
 mythrilSword = Weapon(75, 10000, 750, 0, "Mythril Sword")
-voidSword = Weapon(150, 40000, 2000, 0, "Void Sword")
+voidSword = Weapon(150, 40000, 1500, 0, "Void Sword")
+darkSword = Weapon(200, 50000, 2200, 0, "Dark Sword")
 
 weapons = [woodenSword,  ironSword, bronzeSword, silverSword, diamondSword, platinumSword, energySword, mythrilSword, masterSword, voidSword, darkSword]
 

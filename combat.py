@@ -66,7 +66,7 @@ def chooseSpells(player: Player):
 
 
 def generateEnnemy(player: Player):
-    eLevel = randint(1, player.level+2)
+    eLevel = randint(max(1, player.level-3), player.level+2)
     eAttack = 10 + eLevel - randint(0, eLevel)
     eDodge = eLevel - eAttack + 20
     eHealth = calculateEnnemyHealthOrMana(eLevel)
@@ -360,7 +360,7 @@ class Combat:
             player.gainGold(ennemy)
             print(f"Your new xp is {player.xp}/{calculateXpLevels(player.level)}")
             if player.xp >= calculateXpLevels(player.level):
-                print(f"LEVEL UP : {player.xp} / {calculateXpLevels(player.level)} xp")
+                print(f"LEVEL UP : Lv:{player.level} -> Lv:{player.level + 1}")
                 flush_input()
                 input("Press enter to continue...\n")
                 clearTerminal()
