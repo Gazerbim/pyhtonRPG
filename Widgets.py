@@ -186,21 +186,21 @@ class ChooseWidget:
 	def on_press(self, key):
 		if key == keyboard.Key.down:
 			self.on_down()
-			os.system("cls")
+			clearTerminal()
 			if self.prefix != "":
 				print(self.prefix)
 			self.display()
 
 		elif key == keyboard.Key.up:
 			self.on_up()
-			os.system("cls")
+			clearTerminal()
 			if self.prefix != "":
 				print(self.prefix)
 			self.display()
 
 		elif key == keyboard.Key.esc:
 			self.on_esc()
-			os.system("cls")
+			clearTerminal()
 			if self.prefix != "":
 				print(self.prefix)
 			self.display()
@@ -208,7 +208,7 @@ class ChooseWidget:
 
 		elif key == keyboard.Key.enter:
 			self.on_enter()
-			os.system("cls")
+			clearTerminal()
 			if self.prefix != "":
 				print(self.prefix)
 			self.display()
